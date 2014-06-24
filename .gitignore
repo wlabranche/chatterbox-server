@@ -27,5 +27,5 @@ logs
 results
 
 npm-debug.log
-node_modules
-client/bower_components
+**/node_modules
+**/bower_components

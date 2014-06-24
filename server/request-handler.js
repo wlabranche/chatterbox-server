@@ -33,19 +33,20 @@ module.exports.handler = function(request, response) {
     if (request.method === 'POST') {
       request.on('data', function(data){
         data = JSON.parse(data);
-        data['objectId'] = count++;
+        // data['objectId'] = count++;
         data['createdAt'] = new Date();
         fs.readFile('./server/messages.json', function(err, storedData){
           if(err){
             throw err;
           }
           storedData = JSON.parse(storedData);
+          data['objectId'] = storedData.results.length;
           storedData.results.push(data);
           fs.writeFile('./server/messages.json', JSON.stringify(storedData), function(err){
             if (err){throw err;}
           });
+          response.end(JSON.stringify({objectId: data['objectId'], createdAt: data['createdAt']}));
         });
-        response.end(JSON.stringify({objectId: data['objectId'], createdAt: data['createdAt']}));
       });
     }
 
@@ -77,7 +78,7 @@ var routes = {
   "/classes/room": true
 };
 
-var count = 0;
+// var count = 0;
 
 
 
