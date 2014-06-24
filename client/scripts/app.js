@@ -54,7 +54,7 @@
         contentType: 'application/json',
         data: {order: '-createdAt'},
         success: function(data){
-          console.log(typeof data);
+          console.log(data);
           data = JSON.parse(data);
           self.renderMessages(data.results);
           var rooms = {};

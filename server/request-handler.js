@@ -1,6 +1,12 @@
 var url = require('url');
+var fs = require('fs');
 
 module.exports.handler = function(request, response) {
+
+
+  if (!fs.existsSync('./server/messages.json')){
+    fs.writeFileSync('./server/messages.json', '{ "results": []}');
+  };
 
   console.log("Serving request type " + request.method + " for url " + request.url);
 
@@ -28,13 +34,26 @@ module.exports.handler = function(request, response) {
       request.on('data', function(data){
         data = JSON.parse(data);
         data['objectId'] = count++;
-        storage.results.push(data);
-        response.end(JSON.stringify({objectId: data['objectId'], createdAt: new Date()}));
+        data['createdAt'] = new Date();
+        fs.readFile('./server/messages.json', function(err, storedData){
+          if(err){
+            throw err;
+          }
+          storedData = JSON.parse(storedData);
+          storedData.results.push(data);
+          fs.writeFile('./server/messages.json', JSON.stringify(storedData), function(err){
+            if (err){throw err;}
+          });
+        });
+        response.end(JSON.stringify({objectId: data['objectId'], createdAt: data['createdAt']}));
       });
     }
 
     if (request.method === 'GET') {
-      response.end(JSON.stringify(storage));
+      fs.readFile('./server/messages.json', function(err, data){
+        if (err){console.log(err , data);}
+        response.end(data);
+      });
     }
   } else {
     response.writeHead(404, headers);
@@ -58,9 +77,6 @@ var routes = {
   "/classes/room": true
 };
 
-var storage = {
-  results: []
-};
 var count = 0;
 
 
