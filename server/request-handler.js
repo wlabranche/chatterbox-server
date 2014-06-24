@@ -4,32 +4,57 @@
  * You'll have to figure out a way to export this function from
  * this file and include it in basic-server.js so that it actually works.
  * *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html. */
-
-var handleRequest = function(request, response) {
-  /* the 'request' argument comes from nodes http module. It includes info about the
-  request - such as what URL the browser is requesting. */
-
+var url = require('url');
   /* Documentation for both request and response can be found at
    * http://nodemanual.org/0.8.14/nodejs_ref_guide/http.html */
 
+module.exports.handler = function(request, response) {
+
   console.log("Serving request type " + request.method + " for url " + request.url);
 
-  var statusCode = 200;
+  var parsedUrl = url.parse(request.url);
+  console.log(parsedUrl.pathname)
+  var statusCodes = {
+    GET: 200,
+    POST: 201,
+    OPTIONS: 200
+  };
 
-  /* Without this line, this server wouldn't work. See the note
-   * below about CORS. */
+  var statusCode = statusCodes[request.method];
+
   var headers = defaultCorsHeaders;
-
   headers['Content-Type'] = "text/plain";
+  console.log(!!routes[parsedUrl.pathname]);
+  if (routes[parsedUrl.pathname]) {
+    response.writeHead(statusCode, headers);
+
+    if (request.method === 'OPTIONS') {
+      response.end();
+    }
+
+    if (request.method === 'POST') {
+      request.on('data', function(data){
+        recieved.results.push(JSON.parse(data));
+        response.end(JSON.stringify(recieved));
+      });
+    }
 
   /* .writeHead() tells our server what HTTP status code to send back */
-  response.writeHead(statusCode, headers);
 
   /* Make sure to always call response.end() - Node will not send
    * anything back to the client until you do. The string you pass to
    * response.end() will be the body of the response - i.e. what shows
    * up in the browser.*/
-  response.end("Hello, World!");
+    console.log(recieved);
+    if (request.method === 'GET') {
+      response.end(JSON.stringify(recieved));
+    }
+  } else {
+    statusCode = 404;
+    response.writeHead(statusCode, headers);
+    response.end();
+  }
+
 };
 
 /* These headers will allow Cross-Origin Resource Sharing (CORS).
@@ -43,3 +68,46 @@ var defaultCorsHeaders = {
   "access-control-allow-headers": "content-type, accept",
   "access-control-max-age": 10 // Seconds.
 };
+var classes = [];
+
+var routes = {
+  "/": true,
+  "/classes/messages/": true,
+  "/classes/messages": true,
+  "/classes/room1": true,
+  "/classes/room": true
+};
+
+var recieved = {
+  results: []
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
