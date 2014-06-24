@@ -34,8 +34,10 @@ module.exports.handler = function(request, response) {
 
     if (request.method === 'POST') {
       request.on('data', function(data){
-        recieved.results.push(JSON.parse(data));
-        response.end(JSON.stringify(recieved));
+        data = JSON.parse(data);
+        data['objectId'] = count++;
+        recieved.results.push(data);
+        response.end(JSON.stringify({objectId: data['objectId'], createdAt: new Date()}));
       });
     }
 
@@ -81,10 +83,7 @@ var routes = {
 var recieved = {
   results: []
 };
-
-
-
-
+var count = 0;
 
 
 

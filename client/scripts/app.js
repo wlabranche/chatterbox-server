@@ -28,10 +28,14 @@
             //username
             username: self.username,
             //objectId
-            objectId: data.objectId,
+            objectId: JSON.parse(data).objectId,
+
+            createdAt: JSON.parse(data).createdAt,
             //roomname
             roomname: self.roomname
           };
+          console.log(JSON.parse(data));
+          console.log(messageObject);
           //call addMessage with message  object as argument
           self.addMessage(messageObject);
           console.log(data);
@@ -50,6 +54,8 @@
         contentType: 'application/json',
         data: {order: '-createdAt'},
         success: function(data){
+          console.log(typeof data);
+          data = JSON.parse(data);
           self.renderMessages(data.results);
           var rooms = {};
           for (var i = 0; i < data.results.length; i++){
